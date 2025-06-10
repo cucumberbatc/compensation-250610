@@ -6,6 +6,9 @@ import compensation.OrderApplication;
 import javax.persistence.*;
 import java.util.List;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.Date;
 import java.time.LocalDate;
 import java.util.Map;
@@ -16,7 +19,8 @@ import java.util.Collections;
 @Entity
 @Table(name="Order_table")
 @Data
-
+@Getter
+@Setter
 //<<< DDD / Aggregate Root
 public class Order  {
 
@@ -45,20 +49,14 @@ private String status;
     
 private String address;
 
-    @PostPersist
+    @PostPersist // Order가 스스로 영속화(instance)된 후 실행되는 함수
     public void onPostPersist(){
-    Inventory inventory = OrderApplication.applicationContext
-        .getBean(compensation.external.InventoryService.class)
-        .checkStock(get??);
-
 
         OrderPlaced orderPlaced = new OrderPlaced(this);
         orderPlaced.publishAfterCommit();
 
-
-
-        OrderCancelled orderCancelled = new OrderCancelled(this);
-        orderCancelled.publishAfterCommit();
+        // OrderCancelled orderCancelled = new OrderCancelled(this);
+        // orderCancelled.publishAfterCommit();
 
     
     }
@@ -82,17 +80,15 @@ private String address;
 
         */
 
-        /** Example 2:  finding and process
-        
-
-        repository().findById(outOfStock.get???()).ifPresent(order->{
+        repository().findById(
+                outOfStock.getOrderId()
+            ).ifPresent(order->{
             
-            order // do something
+            order.setStatus("OrderCancelled");
             repository().save(order);
 
 
          });
-        */
 
         
     }
